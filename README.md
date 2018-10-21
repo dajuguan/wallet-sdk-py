@@ -114,14 +114,15 @@ as follows:
 ...     "type": "Organization",
 ...     "access": "username001",
 ...     "secret": "User001Pass", ## 8-16 characters including upper case, lower case and digits
-...     "public_key":  {
-...         "usage": "",
-...         "key_type": "",
-...         "public_key_data": ""
-...     }
+...     #"public_key":  {
+...     #    "usage": "",
+...     #    "key_type": "",
+...     #    "public_key_data": ""
+...     #}这部分如果设置的话就会导致返回不了api.key
 ... }
 >>> _, resp = wallet.register(header, body)
 >>> print resp
+{'ErrMessage': u'', 'Payload': u'{"id":"did:axn:6b7ae56d-d7d2-466b-a919-42e776376481","endpoint":"6d126b8a1af39605a1d479910836f1211dfa902a6f5d80d55eab9f0a37867a77","key_pair":{"private_key":"vnp7RE+MCvXyagia7Vst6gQRjWffd0wq+SzU5QQeJZmJohsBtRJDiwXmC1ld4aU6XhbTp6JWvCXP/5rCao+RDQ==","public_key":"iaIbAbUSQ4sF5gtZXeGlOl4W06eiVrwlz/+awmqPkQ0="},"created":1540117715,"transaction_ids":["3222f25ecccd5027cb957843b39420ab75a24f85d89bb94102eef21327aa2436","3389f21c76b9b087db1d0509f129eba71c2071593381b87c98286f379f4b389a","020efe6d0bfb34e0f7f9e9b6b37ab5a9ea675fe13adaf443a6b579ce3ef77f71"]}', 'ErrCode': 0, 'Method': u''}
 ```
 
 * `Callback-Url` in the http header is optional. Set it only if you want to receive
@@ -138,7 +139,7 @@ After creating the wallet account, you can create POE assets with this account a
 >>> payload = {
 ...     "id": "",
 ...     "name": "name",
-...     "parent_id": "parent-poe-id",
+...     #"parent_id": "parent-poe-id",  //这个是可选参数
 ...     "owner": "owner did",
 ...     "hash": "metadata-hash",
 ...     "metadata": map(ord, '{"address": "xxx", "telephone": "xxx", ...}')
@@ -152,6 +153,9 @@ After creating the wallet account, you can create POE assets with this account a
 ...     }
 >>> _, resp = wallet.create_poe({}, payload, params)
 >>> print resp
+{'ErrMessage': u'', 'Payload': u'{"id":"did:axn:39851d26-e37e-4523-a4f7-7c701287c209","created":1540118074,"transaction_ids":["f58acf6d6ad39b5f248cf62e9ea31f9baa4cf9a873fe17dc4760e2f2643e6147"]}', 'ErrCode': 0, 'Method': u''}
+{'ErrMessage': u'', 'Payload': u'{"id":"did:axn:afa089da-ecc1-4a52-a7e8-d602dd837a77","created":1540121428,"transaction_ids":["d94b6a846a44fb6e77d7feef3de199bb38c92014c0c3faac5c1075bcb6d22587"]}', 'ErrCode': 0, 'Method': u''}
+
 ```
 
 * When creating a POE asset, the **name** and **owner** fields must be set, with
@@ -170,6 +174,8 @@ After creating POE, you can upload the POE file for this account as follows:
 >>> readonly = "False"
 >>> _, resp = wallet.upload_poe({}, filename, poeid, readonly)
 >>> print resp
+{'ErrMessage': u'', 'ErrCode': 0, 'Method': u'', 'Payload': u'{"id":"did:axn:39851d26-e37e-4523-a4f7-7c701287c209","transaction_ids":["eb2d28d7f572ef77f02d3e83cfadbeaec0554f03187e1daba4058f9bbc93dd71","d54e13c1d3f3cab381b6aeb63a4e4149266e6946debb4e283f9c2e4f22c5f71c"]}'}
+{'ErrMessage': u'', 'Payload': u'{"id":"did:axn:31bccc33-beb5-4224-8d69-f56104a81c1a","created":1540121605,"transaction_ids":["77ed3e6f99ecd0ab251716208707c2f4f22c39bde92c109be4e12eb7ecad14bd"]}', 'ErrCode': 0, 'Method': u''}
 ```
 
 * The `upload_poe` API uploads the file to **Offchain** storage, generates an SHA256
@@ -201,6 +207,8 @@ tokens as follows:
 ...     "payload": payload
 ...     }
 >>> _, resp = wallet.issue_colored_token({}, payload, params)
+需要注意的是owner与asset——id是一一对应的，issuer可以和ownner相同，并且asset_id必须是没有用过的（未上传poe）
+{'ErrMessage': u'', 'Payload': u'{"token_id":"7f1d31197a332461bd8ab1bc5fbda3a484a1fecc0bac86d5698b3c65cbb467de","txs":[{"version":1,"timestamp":{"time":{"seconds":1540121704,"nanos":472224447}},"txin":[{"ix":4294967295}],"txout":[{"cTokenId":"7f1d31197a332461bd8ab1bc5fbda3a484a1fecc0bac86d5698b3c65cbb467de","cType":1,"value":1000,"addr":"did:axn:6b7ae56d-d7d2-466b-a919-42e776376481","until":-1,"script":"eyJwdWJsaWNLZXkiOiJpYUliQWJVU1E0c0Y1Z3RaWGVHbE9sNFcwNmVpVnJ3bHovK2F3bXFQa1EwPSJ9"}],"founder":"did:axn:6b7ae56d-d7d2-466b-a919-42e776376481"}]}', 'ErrCode': 0, 'Method': u''}
 ```
 
 * When issuing colored tokens, you need to specify an issuer(a wallet account ID),
@@ -246,6 +254,7 @@ account as follows:
 >>> id_ = "wallet id"
 >>> _, resp = wallet.query_wallet_balance({}, id_)
 >>> print resp
+{'ErrMessage': u'', 'Payload': u'{"id":"did:axn:39851d26-e37e-4523-a4f7-7c701287c209","created":1540118074,"transaction_ids":["f58acf6d6ad39b5f248cf62e9ea31f9baa4cf9a873fe17dc4760e2f2643e6147"]}', 'ErrCode': 0, 'Method': u''}
 ```
 
 ### Query transaction logs
@@ -260,6 +269,8 @@ account as follows:
 >>> page = 1 # page of logs to query
 >>> _, resp = wallet.get_tx_logs({}, id, tx_type, num, page)
 >>> print resp
+
+{'ErrMessage': u'', 'Payload': u'{"\\u003cbuilt-in function id\\u003e":{}}', 'ErrCode': 0, 'Method': u''}
 ```
 
 ### Query transaction UTXO
@@ -273,6 +284,8 @@ account as follows:
 >>> page = 1
 >>> _, resp = wallet.get_tx_utxo({}, id, num, page)
 >>> print resp
+query_txn_logs_with_id
+{'ErrMessage': u'No such permission', 'Payload': None, 'ErrCode': 401, 'Method': u''}
 ```
 
 ### Query transaction STXO
